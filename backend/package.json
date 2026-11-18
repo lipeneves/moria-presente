@@ -15,7 +15,8 @@
     "test:coverage": "c8 --all --include \"src/**\" --exclude src/server.js --reporter=text --reporter=text-summary node --test",
     "db:generate": "prisma generate",
     "db:migrate": "dotenv -e ../.env -- prisma migrate dev",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node prisma/seed.js",
+    "db:seed:demo": "node prisma/seed-demo.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
