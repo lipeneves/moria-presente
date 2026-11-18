@@ -42,8 +42,11 @@ npm run dev                  # http://localhost:3000
 Testes (não precisam de banco):
 
 ```bash
-npm test
+npm test                 # roda os testes
+npm run test:coverage    # roda os testes e mostra a cobertura de código (c8)
 ```
+
+A cobertura considera **todos** os arquivos de `src/` (opção `--all`), inclusive os que nenhum teste carrega. Fica de fora apenas `src/server.js`, que só sobe o servidor.
 
 ## Endpoints
 
