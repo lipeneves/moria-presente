@@ -64,6 +64,16 @@ moria-presente/
 |--------|---------|-----------|
 | ![Tela 1](docs/prototipo/tela1.png) | ![Tela 2](docs/prototipo/tela2.png) | ![Tela 3](docs/prototipo/tela3.png) |
 
+## Acessibilidade e ODS 4
+
+O projeto está ligado ao **ODS 4 – Educação de Qualidade** (metas 4.5 e 4.a: acesso igualitário e ambientes de aprendizagem inclusivos). Para que toda a equipe consiga registrar a frequência, o app oferece:
+
+- painel **Acessibilidade** em todas as telas, com **alto contraste** e **tamanho do texto de 100% a 175%**, salvos no aparelho;
+- anúncios para **leitores de tela** a cada marcação e situações indicadas por **símbolo + texto**, não só por cor;
+- alvos de toque de 48px e foco sempre visível.
+
+Capturas do app em funcionamento: [`docs/evidencias/`](docs/evidencias/).
+
 ## Segurança e privacidade
 
 - Senhas armazenadas apenas como hash bcrypt (nunca em texto limpo, MD5 ou SHA-1).
@@ -73,4 +83,4 @@ moria-presente/
 
 ## Status
 
-🚧 Em desenvolvimento – fase de especificação e protótipo concluída. Próximo incremento: cadastro e chamada offline.
+🚧 Em desenvolvimento – incremento 1 concluído: API (login, cadastros, sincronização) e PWA da chamada offline com recursos de acessibilidade. Próximo incremento: relatórios (RF06–RF08).
