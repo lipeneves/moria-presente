@@ -25,6 +25,7 @@ function criarPrismaEspiao(retornos = {}) {
     turma: modelo('turma'),
     atividade: modelo('atividade'),
     crianca: modelo('crianca'),
+    chamada: modelo('chamada'),
   };
   return { prisma, chamadas, ultima: () => chamadas.at(-1) };
 }
@@ -77,6 +78,9 @@ describe('Repositórios Prisma', () => {
     await repo.criarComResponsavel({ nome: 'Ana', idTurma: 't1', responsavel: { nome: 'Maria' } });
     const { args } = espiao.ultima();
     assert.deepEqual(args.data.responsavel, { create: { nome: 'Maria' } });
+    // Sem idTurma solto: o Prisma rejeita chave estrangeira direta junto com criação aninhada.
+    assert.equal(args.data.idTurma, undefined);
+    assert.deepEqual(args.data.turma, { connect: { id: 't1' } });
     assert.equal(args.select.ativo, undefined);
     assert.equal(args.select.responsavel.select.consentimentoLgpd, undefined);
 
@@ -93,6 +97,11 @@ describe('Repositórios Prisma', () => {
 
     const ids = await repo.idsCriancasAtivasDaTurma('t1');
     assert.deepEqual([...ids], ['c1', 'c2']);
+
+    const data = new Date('2026-11-17T00:00:00Z');
+    await repo.listarPorData(data);
+    assert.equal(espiao.ultima().consulta, 'chamada.findMany');
+    assert.deepEqual(espiao.ultima().args.where, { data });
   });
 
   it('chamadas: repassa erros que não são de corrida entre aparelhos', async () => {
