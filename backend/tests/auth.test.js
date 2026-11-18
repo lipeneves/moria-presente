@@ -53,6 +53,23 @@ describe('Autenticação (RF01)', () => {
     assert.equal((await autorizado(request(ambiente.app).get('/turmas'))).status, 401);
   });
 
+  it('bloqueia o IP após 10 tentativas de login, sem afetar outros IPs atrás do mesmo proxy', async () => {
+    const atrasDoProxy = criarAmbienteDeTeste({ proxiesConfiaveis: 1 });
+    await criarUsuarioDeTeste(atrasDoProxy.usuarioRepository, { perfil: 'educador' });
+    const tentar = (ip, senha) =>
+      request(atrasDoProxy.app)
+        .post('/auth/login')
+        .set('X-Forwarded-For', ip)
+        .send({ email: 'educador@exemplo.org', senha });
+
+    for (let i = 0; i < 10; i++) {
+      assert.equal((await tentar('203.0.113.10', 'senha-errada')).status, 401);
+    }
+
+    assert.equal((await tentar('203.0.113.10', 'senha-de-teste-123')).status, 429);
+    assert.equal((await tentar('198.51.100.20', 'senha-de-teste-123')).status, 200);
+  });
+
   it('impede educador de cadastrar usuários', async () => {
     const { token } = (await login('educador@exemplo.org')).body;
 

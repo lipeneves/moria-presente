@@ -4,7 +4,7 @@ import { criarServices } from './container.js';
 import { criarApp } from './app.js';
 
 const services = criarServices({ prisma, jwtSecret: env.JWT_SECRET });
-const app = criarApp({ services, origemCors: env.CORS_ORIGIN });
+const app = criarApp({ services, origemCors: env.CORS_ORIGIN, proxiesConfiaveis: env.TRUST_PROXY });
 
 const servidor = app.listen(env.PORT, () => {
   console.log(`API Moriá Presente rodando na porta ${env.PORT}`);

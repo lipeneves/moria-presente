@@ -9,10 +9,13 @@ import { criarRotasCriancas } from './modules/criancas/criancas.routes.js';
 import { criarRotasChamadas } from './modules/chamadas/chamadas.routes.js';
 
 // Recebe os services prontos (injeção de dependência): nos testes entram versões com repositórios em memória.
-export function criarApp({ services, origemCors = 'http://localhost:4200' }) {
+export function criarApp({ services, origemCors = 'http://localhost:4200', proxiesConfiaveis = 0 }) {
   const app = express();
   const autenticar = criarAutenticar(services.authService);
 
+  // Atrás de proxy (Render, Railway...) o IP real do cliente vem no X-Forwarded-For.
+  // Só confiamos nesse header na quantidade de saltos configurada, senão qualquer um forja o próprio IP.
+  app.set('trust proxy', proxiesConfiaveis);
   app.disable('x-powered-by');
   app.use(helmet());
   app.use(cors({ origin: origemCors }));

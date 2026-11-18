@@ -96,7 +96,7 @@ export function criarBancoEmMemoria() {
   return { banco, usuarioRepository, turmasRepository, criancasRepository, chamadasRepository };
 }
 
-export function criarAmbienteDeTeste({ agora } = {}) {
+export function criarAmbienteDeTeste({ agora, proxiesConfiaveis = 0 } = {}) {
   const repos = criarBancoEmMemoria();
 
   const authService = criarAuthService({
@@ -116,7 +116,7 @@ export function criarAmbienteDeTeste({ agora } = {}) {
   });
 
   const services = { authService, turmasService, criancasService, chamadasService };
-  return { ...repos, services, app: criarApp({ services }) };
+  return { ...repos, services, app: criarApp({ services, proxiesConfiaveis }) };
 }
 
 export async function criarUsuarioDeTeste(usuarioRepository, { perfil = 'coordenacao', senha = 'senha-de-teste-123' } = {}) {
