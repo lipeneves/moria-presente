@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>Moriá Presente</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Chamada e frequência do Instituto Moriá, funcionando mesmo sem internet." />
+    <meta name="theme-color" content="#1a4d8a" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <script>
+      // Aplica as preferências de acessibilidade antes do primeiro desenho da tela (evita "piscar").
+      try {
+        var p = JSON.parse(localStorage.getItem('moria.acessibilidade') || '{}');
+        if (p.altoContraste) document.documentElement.classList.add('alto-contraste');
+        if (p.escalaFonte) document.documentElement.style.fontSize = p.escalaFonte + '%';
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+    <noscript>Ative o JavaScript para usar o Moriá Presente.</noscript>
+  </body>
+</html>
