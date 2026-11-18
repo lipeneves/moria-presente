@@ -1,0 +1,53 @@
+name: CI Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', '.github/workflows/ci-backend.yml']
+  pull_request:
+    branches: [main]
+    paths: ['backend/**', '.github/workflows/ci-backend.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  build-e-testes:
+    name: Build e testes (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        node: [22, 24]
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      # Valor fictício: os testes não acessam banco, mas o Prisma exige a variável para validar o schema.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v5
+
+      - name: Configurar Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Validar schema do banco (Prisma)
+        run: npx prisma validate
+
+      - name: Build do cliente Prisma
+        run: npx prisma generate
+
+      - name: Testes automatizados com cobertura
+        run: npm run test:coverage

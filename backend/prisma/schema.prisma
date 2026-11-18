@@ -1,0 +1,121 @@
+// Modelo de dados do Moriá Presente (ver docs/modelo-de-dados.md)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Perfil {
+  coordenacao
+  educador
+}
+
+enum Turno {
+  manha
+  tarde
+}
+
+enum StatusPresenca {
+  presente
+  falta
+  justificada
+}
+
+model Usuario {
+  id          String    @id @default(uuid()) @db.Uuid
+  nome        String
+  email       String    @unique
+  senhaHash   String    @map("senha_hash")
+  perfil      Perfil
+  ativo       Boolean   @default(true)
+  versaoToken Int       @default(0) @map("versao_token")
+  chamadas    Chamada[]
+
+  @@map("usuario")
+}
+
+model Responsavel {
+  id                String    @id @default(uuid()) @db.Uuid
+  nome              String
+  telefone          String
+  parentesco        String
+  consentimentoLgpd Boolean   @map("consentimento_lgpd")
+  dataConsentimento DateTime  @map("data_consentimento")
+  criancas          Crianca[]
+
+  @@map("responsavel")
+}
+
+model Turma {
+  id         String      @id @default(uuid()) @db.Uuid
+  nome       String      @unique
+  turno      Turno
+  ativa      Boolean     @default(true)
+  criancas   Crianca[]
+  atividades Atividade[]
+
+  @@map("turma")
+}
+
+model Atividade {
+  id       String    @id @default(uuid()) @db.Uuid
+  nome     String
+  tipo     String
+  idTurma  String    @map("id_turma") @db.Uuid
+  ativa    Boolean   @default(true)
+  turma    Turma     @relation(fields: [idTurma], references: [id])
+  chamadas Chamada[]
+
+  @@unique([nome, idTurma])
+  @@map("atividade")
+}
+
+model Crianca {
+  id                 String      @id @default(uuid()) @db.Uuid
+  nome               String
+  dataNascimento     DateTime    @map("data_nascimento") @db.Date
+  escola             String?
+  turnoEscolar       Turno?      @map("turno_escolar")
+  alergiasRestricoes String?     @map("alergias_restricoes")
+  ativo              Boolean     @default(true)
+  idResponsavel      String      @map("id_responsavel") @db.Uuid
+  idTurma            String      @map("id_turma") @db.Uuid
+  responsavel        Responsavel @relation(fields: [idResponsavel], references: [id])
+  turma              Turma       @relation(fields: [idTurma], references: [id])
+  presencas          Presenca[]
+
+  @@index([idTurma])
+  @@map("crianca")
+}
+
+model Chamada {
+  // O id é gerado no aparelho (UUID) para a sincronização offline ser idempotente.
+  id                 String     @id @db.Uuid
+  idAtividade        String     @map("id_atividade") @db.Uuid
+  data               DateTime   @db.Date
+  idUsuario          String     @map("id_usuario") @db.Uuid
+  criadoNoAparelhoEm DateTime   @map("criado_no_aparelho_em")
+  sincronizadoEm     DateTime   @default(now()) @map("sincronizado_em")
+  atividade          Atividade  @relation(fields: [idAtividade], references: [id])
+  usuario            Usuario    @relation(fields: [idUsuario], references: [id])
+  presencas          Presenca[]
+
+  @@unique([idAtividade, data])
+  @@map("chamada")
+}
+
+model Presenca {
+  id        String         @id @default(uuid()) @db.Uuid
+  idChamada String         @map("id_chamada") @db.Uuid
+  idCrianca String         @map("id_crianca") @db.Uuid
+  status    StatusPresenca
+  chamada   Chamada        @relation(fields: [idChamada], references: [id], onDelete: Cascade)
+  crianca   Crianca        @relation(fields: [idCrianca], references: [id])
+
+  @@unique([idChamada, idCrianca])
+  @@map("presenca")
+}
