@@ -31,6 +31,17 @@ export function criarChamadasService({ chamadasRepository, agora = () => new Dat
   }
 
   return {
+    // Chamadas já registradas no dia, com o total por status (tela inicial e resultado da chamada).
+    async listarDoDia(dataIso) {
+      const chamadas = await chamadasRepository.listarPorData(paraDataUtc(dataIso));
+
+      return chamadas.map(({ presencas, ...chamada }) => {
+        const resumo = { presente: 0, falta: 0, justificada: 0 };
+        for (const { status } of presencas) resumo[status] += 1;
+        return { ...chamada, resumo };
+      });
+    },
+
     // Processa cada chamada separadamente: uma chamada com problema não impede
     // que as outras do mesmo lote sejam gravadas. O aparelho reenvia só as que falharam.
     async sincronizar(chamadas, idUsuario) {

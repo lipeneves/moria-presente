@@ -76,6 +76,16 @@ export function criarBancoEmMemoria() {
     async idsCriancasAtivasDaTurma(idTurma) {
       return new Set(banco.criancas.filter((c) => c.idTurma === idTurma && c.ativo).map((c) => c.id));
     },
+    async listarPorData(data) {
+      return banco.chamadas
+        .filter((c) => c.data.getTime() === data.getTime())
+        .map((c) => ({
+          id: c.id,
+          idAtividade: c.idAtividade,
+          sincronizadoEm: c.criadoNoAparelhoEm,
+          presencas: banco.presencas.filter((p) => p.idChamada === c.id).map(({ status }) => ({ status })),
+        }));
+    },
     async salvar({ id, idAtividade, data, idUsuario, criadoNoAparelhoEm, presencas }) {
       const existente = banco.chamadas.find(
         (c) => c.idAtividade === idAtividade && c.data.getTime() === data.getTime(),

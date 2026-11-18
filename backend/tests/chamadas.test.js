@@ -102,6 +102,32 @@ describe('Sincronização de chamadas offline (RF04 e RF05)', () => {
     assert.equal(ambiente.banco.chamadas.length, 0);
   });
 
+  it('lista as chamadas do dia com o total por status', async () => {
+    const feita = chamada({
+      presencas: [
+        { idCrianca: criancas[0].id, status: 'presente' },
+        { idCrianca: criancas[1].id, status: 'falta' },
+        { idCrianca: criancas[2].id, status: 'justificada' },
+      ],
+    });
+    await sincronizar([feita]);
+
+    const hoje = await request(ambiente.app).get('/chamadas?data=2026-11-17').set('Authorization', `Bearer ${token}`);
+    const outroDia = await request(ambiente.app).get('/chamadas?data=2026-11-10').set('Authorization', `Bearer ${token}`);
+
+    assert.equal(hoje.status, 200);
+    assert.equal(hoje.body.length, 1);
+    assert.equal(hoje.body[0].idAtividade, atividade.id);
+    assert.deepEqual(hoje.body[0].resumo, { presente: 1, falta: 1, justificada: 1 });
+    assert.deepEqual(outroDia.body, []);
+  });
+
+  it('recusa listagem sem data válida', async () => {
+    const resposta = await request(ambiente.app).get('/chamadas?data=ontem').set('Authorization', `Bearer ${token}`);
+
+    assert.equal(resposta.status, 400);
+  });
+
   it('recusa criança repetida na mesma chamada', async () => {
     const repetida = chamada({
       presencas: [

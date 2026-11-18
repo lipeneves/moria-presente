@@ -65,6 +65,13 @@ export function criarChamadasRepository(prisma) {
       return new Set(criancas.map((c) => c.id));
     },
 
+    listarPorData(data) {
+      return prisma.chamada.findMany({
+        where: { data },
+        select: { id: true, idAtividade: true, sincronizadoEm: true, presencas: { select: { status: true } } },
+      });
+    },
+
     async salvar(chamada) {
       try {
         return await salvarEmTransacao(chamada);

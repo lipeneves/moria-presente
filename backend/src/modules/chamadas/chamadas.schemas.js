@@ -21,6 +21,10 @@ const chamadaSchema = z.object({
     ),
 });
 
+export const listarChamadasQuery = z.object({
+  data: z.iso.date('Data inválida (use AAAA-MM-DD)'),
+});
+
 export const sincronizarSchema = z.object({
   chamadas: z.array(chamadaSchema).min(1).max(50),
 });
